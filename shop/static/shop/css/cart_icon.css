@@ -1,0 +1,145 @@
+.animated-container {
+    position: fixed;
+    top: -75px;
+    right: -90px;
+    z-index: 999;
+    margin: 100px;
+    transform: scale(0.5);
+}
+
+.cart-wrapper {
+    width: 55px;
+    height: 40px;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    overflow: hidden;
+}
+
+.cart-container {
+    width: 59px;
+    height: 45px;
+    box-sizing: border-box;
+    position: relative;
+    left: -2px;
+    border-bottom: 50px solid #222;
+    border-left: 6px inset transparent;
+    border-right: 6px inset transparent;
+}
+
+.border-animator {
+    animation: border 1s forwards;
+}
+
+.cart-handle {
+    width: 18px;
+    height: 8px;
+    border: 4px solid #222;
+    border-radius: 5px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.handle-border-animator {
+    animation: handle-border 1s forwards;
+}
+
+.cart-handle-wrapper {
+    position: absolute;
+    top: -9px;
+    left: 15px;
+    height: 9px;
+    overflow: hidden;
+    transform-origin: bottom center;
+    transform-style: preserve-3d;
+}
+
+.handle-animator {
+    animation: handle 1s forwards;
+}
+
+.cart-item {
+    background-color: #1659ad;
+    width: 30px;
+    height: 30px;
+    transform: translate(0px, 0px) rotate(-30deg) scale(0.6);
+    border-radius: 3px;
+    position: absolute;
+    top: -55px;
+    left: 12px;
+    z-index: -1;
+    opacity: 0;
+}
+
+.item-animator {
+    animation: item 1s forwards linear;
+}
+
+@keyframes border {
+    0% {
+        border-left: 10px inset transparent;
+        border-right: 10px inset transparent;
+    }
+
+    25% {
+        border-left: 0px inset transparent;
+        border-right: 0px inset transparent;
+    }
+
+    75% {
+        border-left: 0px inset transparent;
+        border-right: 0px inset transparent;
+    }
+}
+
+@keyframes handle {
+    0% {
+        transform: rotateX(0);
+    }
+
+    35% {
+        transform: rotateX(-180deg);
+    }
+
+    75% {
+        transform: rotateX(-180deg);
+    }
+}
+
+@keyframes handle-border {
+    0% {
+        border-color: #222;
+    }
+
+    25% {
+        border-color: white;
+    }
+
+    75% {
+        border-color: white;
+    }
+}
+
+@keyframes item {
+    0% {
+        opacity: 0;
+        transform: translate(0px, 0px) rotate(-40deg) scale(1.5);
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    35% {
+        transform: translate(0px, 15px) rotate(0deg) scale(0.6);
+        opacity: 1;
+    }
+
+    60% {
+        transform: translate(0px, 55px) rotate(0deg) scale(0.6);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(0px, 55px) rotate(0deg) scale(0.6);
+    }
+}

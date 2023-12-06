@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'shop/css/input.css' %}" />
+    <link rel="stylesheet" href="{% static 'shop/css/cart_page.css' %}" />
+    <title>Корзина</title>
+</head>
+<body>
+    <h1>Корзина</h1>
+    <form method="post" id="form">
+        <div style="display: flex; justify-content: space-evenly; padding-top: 5px">
+            <input type="hidden" name="product_ids" value="{% for p in products %}{{ p.id }},{% endfor %}">
+            <!--{{ form.products }}-->
+            <div class="wrapper">
+                <input class="input" name="person" placeholder="ФИО" type="text" />
+                <!--{ form.person }}-->
+                <span class="underline"></span>
+            </div>
+            <div class="wrapper">
+                <input class="input" name="address" placeholder="АДРЕС" type="text" />
+                <!--{{ form.address }}-->
+                <span class="underline"></span>
+            </div>
+        </div>
+        <div class="box-3">
+            <div class="btn btn-three" onclick="submitForm()">
+                <span>Заказать</span>
+            </div>
+        </div>
+    </form>
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-evenly;">
+        {% for p in products %}
+        <div style="width: calc(25% - 20px);">
+            <div style="border: 8px solid #fff; padding: 10px; text-align: center;">
+                <p style="font-size: 60px; font-weight: bold; color: #fff">{{ p.name }}</p>
+                {% if p.image %}
+                <img src="{{ p.image.url }}" alt="{{ p.name }}" style="display: block; width: 60%; height: 60%; margin: 0 auto; padding: 10px;">
+                {% endif %}
+                <p style="font-size: 40px; color: #fff;">{{ p.price }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function submitForm() {
+            document.getElementById("form").submit();
+        }
+    </script>
+</body>
+</html>

@@ -1,15 +1,30 @@
 - model: shop.product
   pk: 1
   fields:
-    name: Стол
+    name: Кофта
     price: 2000
+    image: "hoodie.jpg"
 - model: shop.product
   pk: 2
   fields:
-    name: Стул
+    name: Штаны
     price: 1000
+    image: "pants.jpg"
 - model: shop.product
   pk: 3
   fields:
-    name: Табурет
+    name: Сапоги
     price: 500
+    image: "boots.jpg"
+- model: shop.product
+  pk: 4
+  fields:
+    name: Штаны
+    price: 1500
+    image: "pants.jpg"
+- model: shop.product
+  pk: 5
+  fields:
+    name: Штаны
+    price: 2500
+    image: "pants.jpg"
