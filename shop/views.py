@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.views.generic.edit import CreateView
-from .models import Product, Order
+from .models import Product, Order, Sum
 import json
 from django.views.decorators.csrf import csrf_protect
 from collections import Counter
@@ -27,7 +27,10 @@ def cart(request):
                 order = Order(person=person, address=address)
                 order.save()
                 order.products.set(all_products)
-                return HttpResponse(f'Ваш заказ оформлен. Спасибо, { person }!')
+                cost = Products.objects.aggregate(total_price=Sum('price'))['total_price']
+                cost_with_discount = total_price * 0.9
+                return HttpResponse(f'Ваш заказ оформлен. Спасибо, { person }! Сумма составляет { cost }, 
+                                    но со скидкой получится всего { cost_with_discount }')
             except:
                 print(order.person, order.address, order.products)
                 return HttpResponse(f"Неверно заполнена форма")
