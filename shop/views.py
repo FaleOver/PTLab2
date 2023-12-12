@@ -22,18 +22,18 @@ def cart(request):
             person = request.POST['person']
             address = request.POST['address']
             product_ids = request.POST['product_ids']
-            all_products = ids_to_products(product_ids)
 
             try:
+                all_products = ids_to_products(product_ids)
+                if not all_products: raise Exception
                 order = Order(person=person, address=address)
                 order.save()
                 order.products.set(all_products)
-                cost = Products.objects.aggregate(total_price=Sum('price'))['total_price']
-                cost_with_discount = total_price * 0.9
-                return HttpResponse(f"Ваш заказ оформлен. Спасибо, { person }! Сумма составляет { cost }, " +
-                                    f"но со скидкой получится всего { cost_with_discount }")
+                cost = sum(product.price for product in all_products)
+                cost_with_discount = cost * 0.9
+                return HttpResponse("Ваш заказ оформлен. Спасибо, {0}! Сумма составляет {1:.2f}, ".format(person, cost) +
+                                    "но со скидкой получится всего {0:.2f}".format(cost_with_discount))
             except:
-                print(order.person, order.address, order.products)
                 return HttpResponse(f"Неверно заполнена форма")
         elif request.POST.get('product_ids'):
             product_ids = request.POST["product_ids"]
@@ -44,7 +44,7 @@ def cart(request):
                 }
             return render(request, 'shop/cart.html', context)
         else:
-            return HttpResponse('Данные заполнены неправильно')
+            return HttpResponse('Неизвестный запрос')
 
 def ids_to_products(product_ids):
     all_products = []
