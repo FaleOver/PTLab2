@@ -1,12 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from django.views.generic.edit import CreateView
 from .models import Product, Order
-from django.db.models import Sum
-import json
-from django.views.decorators.csrf import csrf_protect
 from collections import Counter
-from .forms import OrderForm
 
 # Create your views here.
 def index(request):
@@ -18,51 +13,69 @@ def cart(request):
     product_ids = ''
     
     if request.method == 'POST':
-        if request.POST.get('person'):
-            person = request.POST['person']
-            address = request.POST['address']
-            product_ids = request.POST['product_ids']
-
-            try:
-                all_products = ids_to_products(product_ids)
-                if not all_products: raise Exception
-                order = Order(person=person, address=address)
-                order.save()
-                order.products.set(all_products)
-                cost = sum(product.price for product in all_products)
-                cost_with_discount = cost * 0.9
-                return HttpResponse("Ваш заказ оформлен. Спасибо, {0}! Сумма составляет {1:.2f}, ".format(person, cost) +
-                                    "но со скидкой получится всего {0:.2f}".format(cost_with_discount))
-            except:
-                return HttpResponse(f"Неверно заполнена форма")
-        elif request.POST.get('product_ids'):
-            product_ids = request.POST["product_ids"]
-            all_products = ids_to_products(product_ids)
-            
-            context = {
-                'products': all_products
-                }
-            return render(request, 'shop/cart.html', context)
+        if 'person' in request.POST:
+            return process_order(request)
+        elif 'product_ids' in request.POST:
+            return display_cart(request)
         else:
             return HttpResponse('Неизвестный запрос')
 
-def ids_to_products(product_ids):
+def process_order(request):
+    person = request.POST['person']
+    address = request.POST['address']
+    product_ids = request.POST['product_ids']
+
+    try:
+        all_products = get_products_from_ids(product_ids)
+        if not all_products:
+            raise Exception
+
+        total_price, discount = calc_price_and_discount(all_products)
+
+        create_order(person, address, discount, total_price, all_products)
+        return success_order_response(person, total_price, discount)
+    except:
+        return HttpResponse(f"Неверно заполнена форма")
+
+def get_products_from_ids(product_ids):
     all_products = []
-    product_ids_list = [int(id) for id in product_ids.split(',') if id.isdigit()]
+    product_ids_list = [int(id) for id in product_ids.split(',') if id.strip().isdigit()]
     products = Product.objects.filter(id__in=product_ids_list)
-    # Создаем список продуктов, включая дубликаты в соответствии с количеством повторений
-    # Создаем словарь, в котором ключи - это идентификаторы, а значения - количество повторений
     id_counts = Counter(product_ids_list)
-        
+
     for product in products:
         count = id_counts[product.id]
         all_products.extend([product] * count)
     return all_products
 
-# class PurchaseCreate(CreateView):
-#     model = Purchase
-#     fields = ['product', 'person', 'address']
+def calc_price_and_discount(all_products):
+    total_price = sum(product.price for product in all_products)
+    unique_names = set(product.name for product in all_products)
+    discount = 0
 
-#     def form_valid(self, form):
-#         self.object = form.save()
-#         return HttpResponse(f'Спасибо за покупку, { self.object.person }!')
+    if len(unique_names) > 1:
+        discount = 10
+        total_price -= total_price * (discount / 100)
+
+    return total_price, discount
+
+def create_order(person, address, discount, total_price, all_products):
+    order = Order(person=person, address=address, discount=discount, price=total_price)
+    order.save()
+    order.products.set(all_products)
+    return order
+
+def success_order_response(person, total_price, discount):
+    message = f"Ваш заказ оформлен. Спасибо, {person}! "
+    if discount == 0:
+        message += f"Итоговая цена {total_price}"
+    else:
+        message += f"Cо скидкой в {discount}% получится всего {total_price}"
+    return HttpResponse(message)
+
+def display_cart(request):
+    product_ids = request.POST["product_ids"]
+    all_products = get_products_from_ids(product_ids)
+    
+    context = {'products': all_products}
+    return render(request, 'shop/cart.html', context)
